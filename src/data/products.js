@@ -117,10 +117,10 @@ export const products = [
         id: 12,
         name: "Palli Chakki",
         category: "Sweets",
-        basePrice: 180,
+        basePrice: 160,
         image: "/images/Palli Chakki.jpg",
         description: "Classic sweet made from gram flour, sugar, and ghee.",
-        featured: false,
+        featured: true,
         variants: [
             { label: '250g', value: '250g', price: 160 },
             { label: '500g', value: '500g', price: 320 },
