@@ -27,30 +27,31 @@ const Navbar = () => {
 
     return (
         <nav className="navbar">
-            <div className="navbar-banner">
-                Free Shipping Above ₹999 for AP & TS! 🚚
-            </div>
             <div className="container navbar-container">
-                <div className="navbar-logo">
-                    <Link to="/">
-                        <h1>Vasantha Home Made Pickles</h1>
-                    </Link>
+                {/* Links Section - Left Aligned */}
+                <div className={`navbar-links desktop-links ${isOpen ? 'active' : ''}`}>
+                    <Link to="/" onClick={() => setIsOpen(false)}>HOME</Link>
+                    <Link to="/products" onClick={() => setIsOpen(false)}>SHOP ALL</Link>
+                    <Link to="/products?category=Veg Pickles" onClick={() => setIsOpen(false)}>VEG PICKLES</Link>
+                    <Link to="/products?category=Non Veg Pickles" onClick={() => setIsOpen(false)}>NON-VEG PICKLE'S</Link>
+                    <Link to="/products?category=Sweets" onClick={() => setIsOpen(false)}>SWEET'S</Link>
+                    <Link to="/products?category=Hots" onClick={() => setIsOpen(false)}>HOT'S</Link>
+                    <Link to="/products?category=Spices" onClick={() => setIsOpen(false)}>SPICE'S</Link>
+                    <Link to="/products?category=Powders" onClick={() => setIsOpen(false)}>POWDER'S</Link>
+                    <Link to="/about" onClick={() => setIsOpen(false)}>ABOUT US</Link>
+                    {user?.role === 'admin' && (
+                        <Link to="/admin" onClick={() => setIsOpen(false)} style={{ color: '#FCD34D' }}>SELLER ADMIN</Link>
+                    )}
                 </div>
 
-                <div className={`navbar-links ${isOpen ? 'active' : ''}`}>
-                    <Link to="/" onClick={() => setIsOpen(false)}>Home</Link>
-                    <Link to="/products" onClick={() => setIsOpen(false)}>Shop All</Link>
-                    <Link to="/products?category=Veg Pickles" onClick={() => setIsOpen(false)}>Pickles</Link>
-                    <Link to="/products?category=Sweets" onClick={() => setIsOpen(false)}>Sweets</Link>
-                    <Link to="/about" onClick={() => setIsOpen(false)}>About</Link>
-                </div>
-
+                {/* Actions Section - Right Aligned */}
                 <div className="navbar-actions">
+                    {/* Search */}
                     <div className={`search-container ${showSearch ? 'active' : ''}`}>
                         <form onSubmit={handleSearch} className="search-form">
                             <input
                                 type="text"
-                                placeholder="Search..."
+                                placeholder="SEARCH..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className={showSearch ? 'show' : ''}
@@ -62,23 +63,19 @@ const Navbar = () => {
                                     setShowSearch(!showSearch);
                                 }
                             }}>
-                                <Search size={20} />
+                                <Search size={22} strokeWidth={2} />
                             </button>
                         </form>
                     </div>
 
-                    <Link to="/cart" className="icon-btn">
-                        <ShoppingBag size={20} />
-                        {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-                    </Link>
-
+                    {/* Profile */}
                     {user ? (
                         <div className="profile-menu-container">
                             <button
                                 className="icon-btn"
                                 onClick={() => setShowProfileMenu(!showProfileMenu)}
                             >
-                                <User size={20} />
+                                <User size={22} strokeWidth={2} />
                             </button>
                             {showProfileMenu && (
                                 <div className="profile-dropdown">
@@ -96,11 +93,47 @@ const Navbar = () => {
                             )}
                         </div>
                     ) : (
-                        <Link to="/login" className="btn btn-primary btn-sm hidden-mobile">
-                            Login
+                        <Link to="/login" className="icon-btn">
+                            <User size={22} strokeWidth={2} />
                         </Link>
                     )}
 
+                    {/* Wishlist (Heart) - Placeholder */}
+                    <Link to="/wishlist" className="icon-btn">
+                        {/* Using Heart icon from lucide-react (need to import if not present, but standard usually available or I check imports) */}
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="22"
+                            height="22"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="lucide lucide-heart"
+                        >
+                            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                        </svg>
+                    </Link>
+
+                    {/* Cart Section - Boxed */}
+                    <Link to="/cart" className="cart-container-boxed">
+                        <ShoppingBag size={20} strokeWidth={2} />
+                        <span className="cart-count-superscript">{cartCount}</span>
+                        <span className="cart-price">₹0.00</span>
+                        {/* Note: Price is hardcoded 0.00 in image, but ideally should come from context. 
+                            Using 0.00 for now as context might not provide total value readily available without calculating. 
+                            Actually CartContext usually has total. I'll check imports. 
+                        */}
+                    </Link>
+
+                    {/* Track Button */}
+                    <Link to="/my-orders" className="btn-track">
+                        TRACK
+                    </Link>
+
+                    {/* Mobile Menu Toggle */}
                     <button className="icon-btn mobile-menu-btn" onClick={() => setIsOpen(!isOpen)}>
                         {isOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>

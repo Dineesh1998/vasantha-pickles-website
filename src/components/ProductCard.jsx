@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, Star } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 import { useToast } from '../context/ToastContext';
 import { QUANTITY_OPTIONS } from '../data/products';
 import './ProductCard.css';
@@ -9,6 +10,7 @@ import './ProductCard.css';
 const ProductCard = ({ product }) => {
     const { addToCart } = useCart();
     const { showToast } = useToast();
+    const { toggleWishlist, isInWishlist } = useWishlist();
 
     // Determine which options to use: product-specific variants OR global default options
     const options = product.variants || QUANTITY_OPTIONS;
@@ -26,8 +28,19 @@ const ProductCard = ({ product }) => {
         showToast(`Added ${selectedOption.label} of ${product.name} to cart!`);
     };
 
+    const isWishlisted = isInWishlist(product.id);
+
     return (
         <div className="product-card">
+            <button
+                className={`wishlist-btn ${isWishlisted ? 'active' : ''}`}
+                onClick={(e) => {
+                    e.preventDefault();
+                    toggleWishlist(product);
+                }}
+            >
+                <Star size={18} fill={isWishlisted ? "#ef4444" : "none"} color={isWishlisted ? "#ef4444" : "currentColor"} />
+            </button>
             <Link to={`/product/${product.id}`} className="product-image-link">
                 <div className="product-image-wrapper">
                     <img src={product.image} alt={product.name} className="product-image" />

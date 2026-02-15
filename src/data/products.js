@@ -40,9 +40,14 @@ export const products = [
         name: "Beetroot Janthikalu",
         category: "Snacks",
         basePrice: 300,
-        image: "https://images.unsplash.com/photo-1608755717536-93d35a852d5a?q=80&w=800&auto=format&fit=crop",
+        image: "/images/Beetroot jentikalu.jpg",
         description: "Crunchy snacks infused with the goodness of beetroot.",
-        featured: false
+        featured: false,
+        variants: [
+            { label: '250g', value: '250g', price: 160 },
+            { label: '500g', value: '500g', price: 320 },
+            { label: '1kg', value: '1kg', price: 640 }
+        ]
     },
     {
         id: 6,
@@ -51,7 +56,12 @@ export const products = [
         basePrice: 300,
         image: "/images/Ariselu.jpg",
         description: "Traditional sweet made with rice flour and jaggery.",
-        featured: true
+        featured: true,
+        variants: [
+            { label: '250g', value: '250g', price: 160 },
+            { label: '500g', value: '500g', price: 320 },
+            { label: '1kg', value: '1kg', price: 640 }
+        ]
     },
     {
         id: 7,
@@ -293,6 +303,90 @@ export const products = [
             { label: '250g', value: '250g', price: 190 },
             { label: '500g', value: '500g', price: 380 },
             { label: '1kg', value: '1kg', price: 760 },
+        ]
+    },
+    {
+        id: 24,
+        name: "Bellam Sunnunda",
+        category: "Sweets",
+        basePrice: 225,
+        image: "/images/Bellam Sunnunda.jpg",
+        description: "A traditional sweet made with lentils and spices.",
+        featured: true,
+        variants: [
+            { label: '250g', value: '250g', price: 225 },
+            { label: '500g', value: '500g', price: 450 },
+            { label: '1kg', value: '1kg', price: 850 },
+        ]
+    },
+    {
+        id: 25,
+        name: "Dry Friut halwa",
+        category: "Sweets",
+        basePrice: 250,
+        image: "/images/Dry Friut halwa.jpg",
+        description: "A traditional sweet made with lentils and spices.",
+        featured: true,
+        variants: [
+            { label: '250g', value: '250g', price: 250 },
+            { label: '500g', value: '500g', price: 500 },
+            { label: '1kg', value: '1kg', price: 999 },
+        ]
+    },
+    {
+        id: 26,
+        name: "Dry Friut halwa",
+        category: "Sweets",
+        basePrice: 250,
+        image: "/images/Dry Friut halwa.jpg",
+        description: "A traditional sweet made with lentils and spices.",
+        featured: true,
+        variants: [
+            { label: '250g', value: '250g', price: 250 },
+            { label: '500g', value: '500g', price: 500 },
+            { label: '1kg', value: '1kg', price: 1000 },
+        ]
+    },
+    {
+        id: 27,
+        name: "kaju pakam",
+        category: "Sweets",
+        basePrice: 365,
+        image: "/images/kaju pakam.jpg",
+        description: "A traditional sweet made with cashews and bellam.",
+        featured: true,
+        variants: [
+            { label: '250g', value: '250g', price: 365 },
+            { label: '500g', value: '500g', price: 730 },
+            { label: '1kg', value: '1kg', price: 1460 },
+        ]
+    },
+    {
+        id: 28,
+        name: "kothimeera pickle",
+        category: "Veg Pickles",
+        basePrice: 187,
+        image: "/images/kothimeera pickle.jpg",
+        description: "A traditional pickle made with coriander and spices.",
+        featured: true,
+        variants: [
+            { label: '250g', value: '250g', price: 187 },
+            { label: '500g', value: '500g', price: 374 },
+            { label: '1kg', value: '1kg', price: 748 },
+        ]
+    },
+    {
+        id: 29,
+        name: "Pandu Mirchi Pickle",
+        category: "Veg Pickles",
+        basePrice: 187,
+        image: "/images/Pandu Mirchi Pickle.jpg",
+        description: "A traditional pickle made with coriander and spices.",
+        featured: true,
+        variants: [
+            { label: '250g', value: '250g', price: 187 },
+            { label: '500g', value: '500g', price: 374 },
+            { label: '1kg', value: '1kg', price: 748 },
         ]
     }
 

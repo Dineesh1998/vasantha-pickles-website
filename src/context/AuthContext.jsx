@@ -20,12 +20,22 @@ export const AuthProvider = ({ children }) => {
 
     // Login with validation against local storage database
     const login = (email, password) => {
+        // Hardcoded Admin Access
+        if (email === 'admin@pickles.com' && password === 'admin123') {
+            const adminUser = { name: 'Admin', email: 'admin@pickles.com', role: 'admin', token: 'admin-token' };
+            setUser(adminUser);
+            localStorage.setItem('user', JSON.stringify(adminUser));
+            showToast('Welcome back, Admin!', 'success');
+            return true;
+        }
+
         const registeredUsers = JSON.parse(localStorage.getItem('registered_users') || '[]');
         const foundUser = registeredUsers.find(u => u.email === email && u.password === password);
 
         if (foundUser) {
             // Create session user (exclude password)
-            const sessionUser = { name: foundUser.name, email: foundUser.email, token: 'mock-jwt-' + Date.now() };
+            const role = foundUser.email === 'admin@pickles.com' ? 'admin' : 'customer';
+            const sessionUser = { name: foundUser.name, email: foundUser.email, role, token: 'mock-jwt-' + Date.now() };
             setUser(sessionUser);
             localStorage.setItem('user', JSON.stringify(sessionUser));
             showToast(`Welcome back, ${foundUser.name}!`, 'success');
@@ -81,8 +91,69 @@ export const AuthProvider = ({ children }) => {
         return { success: true };
     };
 
+    // Mock Google Login
+    const loginWithGoogle = () => {
+        const googleUser = {
+            name: 'Google User',
+            email: 'user@gmail.com',
+            token: 'mock-google-token-' + Date.now(),
+            provider: 'google'
+        };
+        setUser(googleUser);
+        localStorage.setItem('user', JSON.stringify(googleUser));
+        showToast('Successfully signed in with Google!', 'success');
+        return true;
+    };
+
+    // Address Management
+    const saveAddress = (address) => {
+        if (!user) return;
+        const savedAddresses = JSON.parse(localStorage.getItem('user_addresses') || '{}');
+        const userAddresses = savedAddresses[user.email] || [];
+
+        // Check if address already exists to avoid duplicates
+        const exists = userAddresses.some(a =>
+            a.address === address.address && a.city === address.city && a.zipCode === address.zipCode
+        );
+
+        if (!exists) {
+            const newAddresses = [...userAddresses, { ...address, id: Date.now() }];
+            savedAddresses[user.email] = newAddresses;
+            localStorage.setItem('user_addresses', JSON.stringify(savedAddresses));
+            showToast('Address saved successfully!', 'success');
+        }
+    };
+
+    const getAddresses = () => {
+        if (!user) return [];
+        const savedAddresses = JSON.parse(localStorage.getItem('user_addresses') || '{}');
+        return savedAddresses[user.email] || [];
+    };
+
+    const deleteAddress = (addressId) => {
+        if (!user) return;
+        const savedAddresses = JSON.parse(localStorage.getItem('user_addresses') || '{}');
+        const userAddresses = savedAddresses[user.email] || [];
+        const newAddresses = userAddresses.filter(a => a.id !== addressId);
+        savedAddresses[user.email] = newAddresses;
+        localStorage.setItem('user_addresses', JSON.stringify(savedAddresses));
+        showToast('Address removed', 'info');
+    };
+
     return (
-        <AuthContext.Provider value={{ user, login, logout, signup, isAuthenticated: !!user }}>
+        <AuthContext.Provider value={{
+            user,
+            login,
+            logout,
+            signup,
+            loginWithGoogle,
+            saveAddress,
+            getAddresses,
+            deleteAddress,
+            deleteAddress,
+            isAuthenticated: !!user,
+            isAdmin: user?.role === 'admin'
+        }}>
             {children}
         </AuthContext.Provider>
     );

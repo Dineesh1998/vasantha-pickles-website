@@ -156,3 +156,37 @@
     border-color: var(--color-primary);
     color: white;
 }
+
+.wishlist-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s;
+    outline: none;
+}
+
+.wishlist-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.wishlist-btn.active {
+    border-color: #ef4444;
+}
+
+/* Ensure product card can hold absolute element */
+.product-card {
+    position: relative;
+    /* ensure other styles are kept if redeclared, but main rule is at top */
+}

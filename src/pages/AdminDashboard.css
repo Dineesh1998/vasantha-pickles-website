@@ -1,0 +1,157 @@
+.admin-dashboard {
+    padding-top: 2rem;
+    min-height: 80vh;
+    background-color: var(--color-background);
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+    font-size: 2rem;
+    color: var(--color-heading);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stat-icon {
+    padding: 1rem;
+    background-color: #F3F4F6;
+    border-radius: 50%;
+    color: var(--color-primary);
+}
+
+.stat-info h3 {
+    font-size: 0.9rem;
+    color: var(--color-text-light);
+    margin-bottom: 0.5rem;
+}
+
+.stat-info p {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-heading);
+}
+
+.orders-table-container {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.orders-table th {
+    background-color: #F9FAFB;
+    text-align: left;
+    padding: 1rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.orders-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+}
+
+.order-id {
+    font-family: monospace;
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+.status-select {
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background-color: white;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.status-select.Processing {
+    border-color: #FCD34D;
+    color: #B45309;
+    background-color: #FFFBEB;
+}
+
+.status-select.Shipped {
+    border-color: #60A5FA;
+    color: #1D4ED8;
+    background-color: #EFF6FF;
+}
+
+.status-select.Delivered {
+    border-color: #34D399;
+    color: #047857;
+    background-color: #ECFDF5;
+}
+
+.status-select.Cancelled {
+    border-color: #F87171;
+    color: #B91C1C;
+    background-color: #FEF2F2;
+}
+
+.customer-info p {
+    margin: 0.2rem 0;
+    font-size: 0.9rem;
+}
+
+.order-items-summary {
+    font-size: 0.85rem;
+    color: var(--color-text-light);
+    max-width: 200px;
+}
+
+.action-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.btn-view {
+    background-color: #F3F4F6;
+    color: var(--color-text);
+}
+
+.btn-view:hover {
+    background-color: #E5E7EB;
+}
+
+@media (max-width: 1024px) {
+    .orders-table-container {
+        overflow-x: auto;
+    }
+}

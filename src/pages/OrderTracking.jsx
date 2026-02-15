@@ -24,12 +24,42 @@ const OrderTracking = () => {
         );
     }
 
-    // Mock tracking steps logic
+    // Dynamic tracking steps logic based on real status
+    const getStepStatus = (stepIndex, currentStatus) => {
+        const statusLevels = ['Processing', 'Shipped', 'Delivered'];
+        const currentLevel = statusLevels.indexOf(currentStatus);
+
+        if (currentLevel === -1) return 'pending'; // Cancelled or unknown
+        if (stepIndex < currentLevel) return 'completed';
+        if (stepIndex === currentLevel) return 'current';
+        return 'pending';
+    };
+
     const steps = [
-        { label: 'Order Placed', status: 'completed', date: new Date(order.date).toLocaleString(), icon: <Clock size={20} /> },
-        { label: 'Processing', status: 'completed', date: new Date(new Date(order.date).getTime() + 1000 * 60 * 30).toLocaleString(), icon: <Package size={20} /> },
-        { label: 'Shipped', status: 'current', date: 'Expected Tomorrow', icon: <Truck size={20} /> },
-        { label: 'Delivered', status: 'pending', date: '---', icon: <CheckCircle size={20} /> }
+        {
+            label: 'Order Placed',
+            status: 'completed',
+            date: new Date(order.date).toLocaleString(),
+            icon: <Clock size={20} />
+        },
+        {
+            label: 'Processing',
+            status: getStepStatus(0, order.status),
+            date: order.status === 'Processing' ? 'In Progress' : (order.status === 'Shipped' || order.status === 'Delivered' ? 'Completed' : 'Pending'),
+            icon: <Package size={20} />
+        },
+        {
+            label: 'Shipped',
+            status: getStepStatus(1, order.status),
+            date: order.status === 'Shipped' ? 'In Transit' : (order.status === 'Delivered' ? 'Shipped' : 'Pending'),
+            icon: <Truck size={20} />
+        },
+        {
+            label: 'Delivered',
+            status: getStepStatus(2, order.status),
+            date: order.status === 'Delivered' ? 'Delivered' : 'Pending',
+            icon: <CheckCircle size={20} />
+        }
     ];
 
     return (
@@ -50,6 +80,9 @@ const OrderTracking = () => {
                                 <div className="step-content">
                                     <h3>{step.label}</h3>
                                     <p>{step.date}</p>
+                                    {step.label === 'Shipped' && order.trackingId && (
+                                        <p className="tracking-id-display">DTDC ID: <strong>{order.trackingId}</strong></p>
+                                    )}
                                 </div>
                                 {index < steps.length - 1 && <div className="step-connector"></div>}
                             </div>

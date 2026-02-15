@@ -1,0 +1,66 @@
+.about-page {
+    background-color: #F8E8D0;
+    /* Light beige/peach background to match image */
+    color: #381200;
+    /* Dark brown text matching the theme */
+    padding: 4rem 2rem;
+    min-height: 80vh;
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+}
+
+.about-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.about-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 2rem;
+    color: #381200;
+}
+
+.about-description {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: 3rem;
+    font-weight: 500;
+}
+
+.why-choose-us {
+    margin-top: 4rem;
+}
+
+.why-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 2rem;
+    color: #381200;
+}
+
+.feature-item {
+    margin-bottom: 2.5rem;
+}
+
+.feature-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.feature-desc {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #5d4037;
+}
+
+@media (max-width: 768px) {
+    .about-title {
+        font-size: 2rem;
+    }
+
+    .about-page {
+        padding: 2rem 1rem;
+    }
+}
