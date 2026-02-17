@@ -150,7 +150,6 @@ export const AuthProvider = ({ children }) => {
             saveAddress,
             getAddresses,
             deleteAddress,
-            deleteAddress,
             isAuthenticated: !!user,
             isAdmin: user?.role === 'admin'
         }}>
