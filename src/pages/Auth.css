@@ -4,10 +4,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-background);
   background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
-    url('/login-bg.jpg') center/cover no-repeat !important;
-  background-color: #333 !important;
+    url('/login-bg.jpg') center/cover no-repeat #333 !important;
   padding: 1rem;
 }
 
