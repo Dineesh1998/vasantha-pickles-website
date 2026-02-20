@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Package, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import './MyOrders.css';
 
 const MyOrders = () => {

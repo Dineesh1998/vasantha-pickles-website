@@ -62,7 +62,7 @@ const ProductDetails = () => {
                         <div className="details-rating">
                             <div className="stars">
                                 {[...Array(5)].map((_, i) => (
-                                    <Star key={i} size={18} fill="#EAB308" color="#EAB308" />
+                                    <Star key={`star-${i}`} size={18} fill="#EAB308" color="#EAB308" />
                                 ))}
                             </div>
                             <span className="review-text">(24 customer reviews)</span>
@@ -88,8 +88,8 @@ const ProductDetails = () => {
                                     onChange={handleSizeChange}
                                     className="details-select"
                                 >
-                                    {options.map((opt, index) => (
-                                        <option key={`${opt.value}-${index}`} value={opt.value}>
+                                    {options.map((opt) => (
+                                        <option key={opt.value} value={opt.value}>
                                             {opt.label} - ₹{opt.price}
                                         </option>
                                     ))}

@@ -28,18 +28,17 @@ const Products = () => {
         );
     }
 
+    const getPageTitle = () => {
+        if (searchQuery) return `Search: "${searchQuery}"`;
+        if (categoryFilter) return categoryFilter;
+        return 'All Products';
+    };
+
     return (
         <div className="products-page section">
             <div className="container">
                 <div className="products-header">
-                    <h1>
-                        {searchQuery
-                            ? `Search: "${searchQuery}"`
-                            : categoryFilter
-                                ? categoryFilter
-                                : 'All Products'
-                        }
-                    </h1>
+                    <h1>{getPageTitle()}</h1>
                     <p>{filteredProducts.length} items found</p>
                 </div>
 
