@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Package, ChevronRight, Clock } from 'lucide-react';
+import { Package, ChevronRight } from 'lucide-react';
 import './MyOrders.css';
 
 const MyOrders = () => {
@@ -44,7 +44,7 @@ const MyOrders = () => {
 
                             <div className="order-preview-items">
                                 {order.items.slice(0, 3).map((item, idx) => (
-                                    <span key={idx}>{item.name} (x{item.quantity}){idx < order.items.length - 1 ? ', ' : ''}</span>
+                                    <span key={item.uniqueId || item.id}>{item.name} (x{item.quantity}){idx < order.items.length - 1 ? ', ' : ''}</span>
                                 ))}
                                 {order.items.length > 3 && <span>... +{order.items.length - 3} more</span>}
                             </div>

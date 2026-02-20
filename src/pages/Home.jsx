@@ -1,5 +1,5 @@
 import React from 'react';
-import { products, categories } from '../data/products';
+import { products } from '../data/products';
 import Hero from '../components/Hero';
 import ProductCard from '../components/ProductCard';
 import { Link } from 'react-router-dom';

@@ -35,6 +35,19 @@ const OrderTracking = () => {
         return 'pending';
     };
 
+    // Extracted from nested ternaries to resolve SonarQube code smell
+    const getProcessingDate = (status) => {
+        if (status === 'Processing') return 'In Progress';
+        if (status === 'Shipped' || status === 'Delivered') return 'Completed';
+        return 'Pending';
+    };
+
+    const getShippedDate = (status) => {
+        if (status === 'Shipped') return 'In Transit';
+        if (status === 'Delivered') return 'Shipped';
+        return 'Pending';
+    };
+
     const steps = [
         {
             label: 'Order Placed',
@@ -45,13 +58,13 @@ const OrderTracking = () => {
         {
             label: 'Processing',
             status: getStepStatus(0, order.status),
-            date: order.status === 'Processing' ? 'In Progress' : (order.status === 'Shipped' || order.status === 'Delivered' ? 'Completed' : 'Pending'),
+            date: getProcessingDate(order.status),
             icon: <Package size={20} />
         },
         {
             label: 'Shipped',
             status: getStepStatus(1, order.status),
-            date: order.status === 'Shipped' ? 'In Transit' : (order.status === 'Delivered' ? 'Shipped' : 'Pending'),
+            date: getShippedDate(order.status),
             icon: <Truck size={20} />
         },
         {
@@ -73,7 +86,7 @@ const OrderTracking = () => {
                 <div className="tracking-container">
                     <div className="tracking-timeline">
                         {steps.map((step, index) => (
-                            <div key={index} className={`timeline-step ${step.status}`}>
+                            <div key={step.label} className={`timeline-step ${step.status}`}>
                                 <div className="step-icon-wrapper">
                                     {step.icon}
                                 </div>
@@ -97,8 +110,8 @@ const OrderTracking = () => {
                             {order.shippingDetails.zipCode}</p>
 
                         <div className="item-list-mini">
-                            {order.items.map((item, idx) => (
-                                <div key={idx} className="mini-item">
+                            {order.items.map((item) => (
+                                <div key={item.uniqueId || item.id} className="mini-item">
                                     <span>{item.name} ({item.size}) x{item.quantity}</span>
                                     <span>₹{item.price * item.quantity}</span>
                                 </div>

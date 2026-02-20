@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { useToast } from './ToastContext';
 import emailjs from '@emailjs/browser';
 
@@ -140,19 +140,21 @@ export const AuthProvider = ({ children }) => {
         showToast('Address removed', 'info');
     };
 
+    const contextValue = useMemo(() => ({
+        user,
+        login,
+        logout,
+        signup,
+        loginWithGoogle,
+        saveAddress,
+        getAddresses,
+        deleteAddress,
+        isAuthenticated: !!user,
+        isAdmin: user?.role === 'admin'
+    }), [user, login, logout, signup, loginWithGoogle, saveAddress, getAddresses, deleteAddress]);
+
     return (
-        <AuthContext.Provider value={{
-            user,
-            login,
-            logout,
-            signup,
-            loginWithGoogle,
-            saveAddress,
-            getAddresses,
-            deleteAddress,
-            isAuthenticated: !!user,
-            isAdmin: user?.role === 'admin'
-        }}>
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );

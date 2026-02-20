@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Truck, CheckCircle, Clock, XCircle, Search, Filter } from 'lucide-react';
+import { Package, Truck, CheckCircle, Clock, Search } from 'lucide-react';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
