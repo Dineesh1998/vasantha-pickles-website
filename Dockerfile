@@ -7,7 +7,12 @@ COPY package*.json ./
 
 RUN npm ci
 
-COPY . .
+# Copy only the files needed for the build (avoids recursive copy security hotspot)
+COPY index.html ./
+COPY vite.config.js ./
+COPY eslint.config.js ./
+COPY src/ ./src/
+COPY public/ ./public/
 
 RUN npm run build
 
