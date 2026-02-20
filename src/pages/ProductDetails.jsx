@@ -61,8 +61,8 @@ const ProductDetails = () => {
 
                         <div className="details-rating">
                             <div className="stars">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star key={`star-${i}`} size={18} fill="#EAB308" color="#EAB308" />
+                                {['star-1', 'star-2', 'star-3', 'star-4', 'star-5'].map((starId) => (
+                                    <Star key={starId} size={18} fill="#EAB308" color="#EAB308" />
                                 ))}
                             </div>
                             <span className="review-text">(24 customer reviews)</span>
