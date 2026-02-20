@@ -27,6 +27,7 @@ const Checkout = () => {
     const [paymentMethod, setPaymentMethod] = useState('card');
     const [isProcessing, setIsProcessing] = useState(false);
     const [orderPlaced, setOrderPlaced] = useState(false);
+    const [orderId, setOrderId] = useState('');
 
     // Address Management State
     const [savedAddresses, setSavedAddresses] = useState([]);
@@ -114,8 +115,11 @@ const Checkout = () => {
 
         // Simulate API call / Payment Gateway processing
         setTimeout(() => {
+            // Use crypto.randomUUID() — cryptographically secure, resolves SonarQube hotspot
+            const generatedOrderId = crypto.randomUUID();
+            setOrderId(generatedOrderId);
             const newOrder = {
-                id: Math.floor(Math.random() * 1000000).toString(),
+                id: generatedOrderId,
                 date: new Date().toISOString(),
                 items: cart,
                 total: total,
@@ -164,7 +168,7 @@ const Checkout = () => {
                     </div>
                     <h2>Order Confirmed!</h2>
                     <p>Thank you for your purchase, {formData.firstName}.</p>
-                    <p className="order-id">Order ID: #{Math.floor(Math.random() * 1000000)}</p>
+                    <p className="order-id">Order ID: #{orderId}</p>
                     <p className="redirect-msg">Redirecting to home in a few seconds...</p>
                     <button className="btn btn-primary" onClick={() => navigate('/')}>
                         Continue Shopping
