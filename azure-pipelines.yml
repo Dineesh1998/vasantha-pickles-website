@@ -9,7 +9,7 @@ trigger:
 pool:
   vmImage: ubuntu-latest
  
-steps:
+steps: 
 - task: NodeTool@0
   inputs:
     versionSpec: '20.x'
@@ -20,19 +20,25 @@ steps:
     npm run build
   displayName: 'npm install and build'
 
-- task: SonarQubePrepare@8
-  inputs:
-    SonarQube: 'devops-sonar'
-    scannerMode: 'cli'
-    cliScannerVersion: '8.0.1.6346'
-    configMode: 'file'
-- task: SonarQubeAnalyze@8
-  inputs:
-    jdkversion: 'JAVA_HOME_17_X64'
+# - task: SonarQubePrepare@8
+#   inputs:
+#     SonarQube: 'devops-sonar'
+#     scannerMode: 'cli'
+#     cliScannerVersion: '8.0.1.6346'
+#     configMode: 'file'
+#   displayName: Prepare Analysis Configuration
 
-- task: SonarQubePublish@8
-  inputs:
-    pollingTimeoutSec: '300'
+# - task: SonarQubeAnalyze@8
+#   inputs:
+#     jdkversion: 'JAVA_HOME_17_X64'
+#   displayName: Run code Analysis
+
+# - task: SonarQubePublish@8
+#   inputs:
+#     pollingTimeoutSec: '300'
+#   displayName: Publish Quality Gate Result
+
+
 - task: Bash@3
   inputs:
     targetType: 'inline'
@@ -54,10 +60,12 @@ steps:
       
       echo "Scanning repo filesystem..."
       trivy fs --exit-code 1 --severity HIGH,CRITICAL --no-progress "$(Build.SourcesDirectory)/$(appDir)"
+  displayName: trivy Scan (code)
 
 - task: DockerInstaller@0
   inputs:
     dockerVersion: '17.09.0-ce'
+  displayName: Docker tool installer
 
 - task: Docker@2
   inputs:
@@ -65,3 +73,29 @@ steps:
     repository: 'dineesh1998/pickles-website'
     command: 'buildAndPush'
     Dockerfile: '**/Dockerfile'
+  displayName: Docker build and push
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      set -euo pipefail
+          
+      IMAGE="$(dockerRepo):$(dockerTag)"
+      echo "Scanning docker image: $IMAGE"
+          
+      trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress "$IMAGE"
+  displayName: Trivy scan (Docker image)
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: 'build/**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/drop'
+  displayName: Copy file to
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/build'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
