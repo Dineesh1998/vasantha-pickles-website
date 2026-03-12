@@ -19,16 +19,13 @@ const Login = () => {
         setError('');
         setIsLoading(true);
 
-        // Simulate network delay for better UX
-        setTimeout(() => {
-            const success = login(email, password);
-            if (success) {
-                navigate('/');
-            } else {
-                setError('Invalid email or password. Please try again.');
-                setIsLoading(false);
-            }
-        }, 800);
+        const result = await login(email, password);
+        if (result.success) {
+            navigate('/');
+        } else {
+            setError(result.message || 'Invalid email or password. Please try again.');
+            setIsLoading(false);
+        }
     };
 
     return (

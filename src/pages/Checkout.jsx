@@ -4,8 +4,9 @@ import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { CreditCard, Truck, Banknote, ArrowLeft, CheckCircle, Plus, MapPin } from 'lucide-react';
+import { orderAPI, addressAPI } from '../services/api';
 import './Checkout.css';
-import './Auth.css'; // Reusing auth styles
+import './Auth.css';
 
 const Checkout = () => {
     const { cart, cartTotal, clearCart } = useCart();
@@ -13,7 +14,6 @@ const Checkout = () => {
     const { user, login, loginWithGoogle, saveAddress, getAddresses, isAuthenticated } = useAuth();
     const navigate = useNavigate();
 
-    // Checkout Form State
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -24,42 +24,36 @@ const Checkout = () => {
         phone: ''
     });
 
-    const [paymentMethod, setPaymentMethod] = useState('card');
+    const [paymentMethod, setPaymentMethod] = useState('cod');
     const [isProcessing, setIsProcessing] = useState(false);
     const [orderPlaced, setOrderPlaced] = useState(false);
     const [orderId, setOrderId] = useState('');
 
-    // Address Management State
     const [savedAddresses, setSavedAddresses] = useState([]);
     const [selectedAddressId, setSelectedAddressId] = useState(null);
     const [saveNewAddress, setSaveNewAddress] = useState(false);
 
-    // Login State within Checkout
     const [loginEmail, setLoginEmail] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
     const [loginError, setLoginError] = useState('');
 
-    // Load saved addresses when user is authenticated
     useEffect(() => {
         if (isAuthenticated && user) {
-            const addresses = getAddresses();
-            setSavedAddresses(addresses);
-            // Pre-fill email from user profile
             setFormData(prev => ({ ...prev, email: user.email, firstName: user.name?.split(' ')[0] || '' }));
+            getAddresses().then(setSavedAddresses);
         }
     }, [isAuthenticated, user]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
-        // If user modifies address manually, clear selected address selection
         if (['address', 'city', 'zipCode', 'phone'].includes(name)) {
             setSelectedAddressId(null);
         }
     };
 
     const handleAddressSelect = (addr) => {
-        setSelectedAddressId(addr.id);
+        setSelectedAddressId(addr._id);
         setFormData(prev => ({
             ...prev,
             address: addr.address,
@@ -71,27 +65,23 @@ const Checkout = () => {
         }));
     };
 
-    const handleLoginSubmit = (e) => {
+    const handleLoginSubmit = async (e) => {
         e.preventDefault();
         setLoginError('');
-        const success = login(loginEmail, loginPassword);
-        if (!success) {
-            setLoginError('Invalid email or password.');
+        const result = await login(loginEmail, loginPassword);
+        if (!result.success) {
+            setLoginError(result.message || 'Invalid email or password.');
         }
     };
 
     const calculateTotal = () => {
         const shipping = cartTotal > 500 ? 0 : 50;
-        return {
-            subtotal: cartTotal,
-            shipping,
-            total: cartTotal + shipping
-        };
+        return { subtotal: cartTotal, shipping, total: cartTotal + shipping };
     };
 
     const { subtotal, shipping, total } = calculateTotal();
 
-    const handlePlaceOrder = (e) => {
+    const handlePlaceOrder = async (e) => {
         e.preventDefault();
 
         if (!isAuthenticated) {
@@ -101,49 +91,53 @@ const Checkout = () => {
 
         setIsProcessing(true);
 
-        // Save address if checked
-        if (saveNewAddress && !selectedAddressId) {
-            saveAddress({
-                firstName: formData.firstName,
-                lastName: formData.lastName,
-                address: formData.address,
-                city: formData.city,
-                zipCode: formData.zipCode,
-                phone: formData.phone
-            });
-        }
+        try {
+            // Save address if checkbox is checked and no existing address selected
+            if (saveNewAddress && !selectedAddressId) {
+                await saveAddress({
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
+                    address: formData.address,
+                    city: formData.city,
+                    zipCode: formData.zipCode,
+                    phone: formData.phone
+                });
+            }
 
-        // Simulate API call / Payment Gateway processing
-        setTimeout(() => {
-            // Use crypto.randomUUID() — cryptographically secure, resolves SonarQube hotspot
-            const generatedOrderId = crypto.randomUUID();
-            setOrderId(generatedOrderId);
-            const newOrder = {
-                id: generatedOrderId,
-                date: new Date().toISOString(),
-                items: cart,
-                total: total,
-                shipping: shipping,
-                status: 'Processing', // Default status
+            // Place order via backend API
+            const orderPayload = {
+                items: cart.map(item => ({
+                    productId: item.id || item._id,
+                    name: item.name,
+                    image: item.image,
+                    size: item.size,
+                    price: item.price,
+                    quantity: item.quantity
+                })),
                 shippingDetails: formData,
-                paymentMethod: paymentMethod,
-                userId: user.email
+                paymentMethod,
+                subtotal,
+                shipping,
+                total
             };
 
-            // Save to local storage (simulating backend)
-            const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-            localStorage.setItem('orders', JSON.stringify([newOrder, ...existingOrders]));
+            const { data } = await orderAPI.place(orderPayload);
 
-            setIsProcessing(false);
+            setOrderId(data.order._id);
             setOrderPlaced(true);
             clearCart();
-            showToast('Order placed successfully!', 'success');
+            showToast('Order placed successfully! 🎉', 'success');
 
-            // Redirect to orders page after 3 seconds
             setTimeout(() => {
                 navigate('/my-orders');
             }, 3000);
-        }, 2000);
+
+        } catch (error) {
+            const message = error.response?.data?.message || 'Failed to place order. Please try again.';
+            showToast(message, 'error');
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     if (cart.length === 0 && !orderPlaced) {
@@ -168,17 +162,16 @@ const Checkout = () => {
                     </div>
                     <h2>Order Confirmed!</h2>
                     <p>Thank you for your purchase, {formData.firstName}.</p>
-                    <p className="order-id">Order ID: #{orderId}</p>
-                    <p className="redirect-msg">Redirecting to home in a few seconds...</p>
-                    <button className="btn btn-primary" onClick={() => navigate('/')}>
-                        Continue Shopping
+                    <p className="order-id">Order ID: #{orderId.slice(-8).toUpperCase()}</p>
+                    <p className="redirect-msg">Redirecting to your orders in a few seconds...</p>
+                    <button className="btn btn-primary" onClick={() => navigate('/my-orders')}>
+                        View My Orders
                     </button>
                 </div>
             </div>
         );
     }
 
-    // Render Login View if not authenticated
     if (!isAuthenticated) {
         return (
             <div className="checkout-page section">
@@ -234,7 +227,6 @@ const Checkout = () => {
         );
     }
 
-    // Authenticated View
     return (
         <div className="checkout-page section">
             <div className="container">
@@ -244,26 +236,24 @@ const Checkout = () => {
                 <h1>Checkout</h1>
 
                 <div className="checkout-layout">
-                    {/* Left Column: Forms */}
                     <div className="checkout-forms">
                         <form id="checkout-form" onSubmit={handlePlaceOrder}>
 
-                            {/* Address Selection */}
                             {savedAddresses.length > 0 && (
                                 <div className="checkout-section">
                                     <h2><MapPin size={20} /> Saved Addresses</h2>
                                     <div className="saved-addresses">
                                         {savedAddresses.map(addr => (
                                             <div
-                                                key={addr.id}
-                                                className={`address-card ${selectedAddressId === addr.id ? 'selected' : ''}`}
+                                                key={addr._id}
+                                                className={`address-card ${selectedAddressId === addr._id ? 'selected' : ''}`}
                                                 onClick={() => handleAddressSelect(addr)}
                                             >
                                                 <p><strong>{addr.firstName} {addr.lastName}</strong></p>
                                                 <p>{addr.address}</p>
                                                 <p>{addr.city}, {addr.zipCode}</p>
                                                 <p>{addr.phone}</p>
-                                                {selectedAddressId === addr.id && <CheckCircle className="address-selected-icon" size={16} />}
+                                                {selectedAddressId === addr._id && <CheckCircle className="address-selected-icon" size={16} />}
                                             </div>
                                         ))}
                                         <div
@@ -283,7 +273,6 @@ const Checkout = () => {
                                 </div>
                             )}
 
-                            {/* Shipping Steps */}
                             <div className="checkout-section">
                                 <h2><Truck size={20} /> Shipping Details</h2>
                                 <div className="grid grid-cols-2">
@@ -332,16 +321,24 @@ const Checkout = () => {
                                 )}
                             </div>
 
-                            {/* Payment Method */}
                             <div className="checkout-section">
                                 <h2><CreditCard size={20} /> Payment Method</h2>
                                 <div className="payment-options">
                                     <div
-                                        className={`payment-option ${paymentMethod === 'card' ? 'selected' : ''}`}
-                                        onClick={() => setPaymentMethod('card')}
+                                        className={`payment-option ${paymentMethod === 'cod' ? 'selected' : ''}`}
+                                        onClick={() => setPaymentMethod('cod')}
                                     >
-                                        <input type="radio" checked={paymentMethod === 'card'} readOnly />
-                                        <span>Credit/Debit Card</span>
+                                        <input type="radio" checked={paymentMethod === 'cod'} readOnly />
+                                        <span>Cash on Delivery</span>
+                                        <Truck size={20} className="payment-icon" />
+                                    </div>
+
+                                    <div
+                                        className={`payment-option ${paymentMethod === 'razorpay' ? 'selected' : ''}`}
+                                        onClick={() => setPaymentMethod('razorpay')}
+                                    >
+                                        <input type="radio" checked={paymentMethod === 'razorpay'} readOnly />
+                                        <span>Pay Online (Razorpay)</span>
                                         <CreditCard size={20} className="payment-icon" />
                                     </div>
 
@@ -353,35 +350,7 @@ const Checkout = () => {
                                         <span>UPI (GPay/PhonePe)</span>
                                         <Banknote size={20} className="payment-icon" />
                                     </div>
-
-                                    <div
-                                        className={`payment-option ${paymentMethod === 'cod' ? 'selected' : ''}`}
-                                        onClick={() => setPaymentMethod('cod')}
-                                    >
-                                        <input type="radio" checked={paymentMethod === 'cod'} readOnly />
-                                        <span>Cash on Delivery</span>
-                                        <Truck size={20} className="payment-icon" />
-                                    </div>
                                 </div>
-
-                                {paymentMethod === 'card' && (
-                                    <div className="card-details fade-in">
-                                        <div className="form-group">
-                                            <label>Card Number</label>
-                                            <input type="text" placeholder="0000 0000 0000 0000" />
-                                        </div>
-                                        <div className="grid grid-cols-2">
-                                            <div className="form-group">
-                                                <label>Expiry Date</label>
-                                                <input type="text" placeholder="MM/YY" />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>CVV</label>
-                                                <input type="text" placeholder="123" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
 
                                 {paymentMethod === 'upi' && (
                                     <div className="upi-details fade-in">
@@ -395,7 +364,6 @@ const Checkout = () => {
                         </form>
                     </div>
 
-                    {/* Right Column: Summary */}
                     <div className="checkout-sidebar">
                         <div className="order-summary-card">
                             <h3>Order Summary</h3>
@@ -429,7 +397,7 @@ const Checkout = () => {
 
                             <button
                                 type="submit"
-                                form="checkout-form" // Binds to the form ID above
+                                form="checkout-form"
                                 className="btn btn-primary place-order-btn"
                                 disabled={isProcessing}
                             >

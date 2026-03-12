@@ -1,8 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { products, categories } from '../data/products';
+import { productAPI } from '../services/api';
 import ProductCard from '../components/ProductCard';
 import './Products.css';
+
+const CATEGORIES = [
+    "Veg Pickles",
+    "Non-Veg Pickles",
+    "Sweets",
+    "Snacks",
+    "Powders",
+    "Spices",
+    "Others"
+];
 
 const Products = () => {
     const { search } = useLocation();
@@ -10,23 +20,26 @@ const Products = () => {
     const categoryFilter = queryParams.get('category');
     const searchQuery = queryParams.get('q');
 
-    // Debug logging
-    console.log('Search Query:', searchQuery);
-    console.log('Category Filter:', categoryFilter);
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    let filteredProducts = products;
-
-    if (categoryFilter) {
-        filteredProducts = filteredProducts.filter(p => p.category === categoryFilter);
-    }
-
-    if (searchQuery) {
-        const lowerQ = searchQuery.toLowerCase();
-        filteredProducts = filteredProducts.filter(p =>
-            p.name.toLowerCase().includes(lowerQ) ||
-            p.description.toLowerCase().includes(lowerQ)
-        );
-    }
+    useEffect(() => {
+        const fetchProducts = async () => {
+            setLoading(true);
+            try {
+                const params = {};
+                if (categoryFilter) params.category = categoryFilter;
+                if (searchQuery) params.search = searchQuery;
+                const { data } = await productAPI.getAll(params);
+                setProducts(data.products);
+            } catch (error) {
+                console.error('Failed to fetch products:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProducts();
+    }, [categoryFilter, searchQuery]);
 
     const getPageTitle = () => {
         if (searchQuery) return `Search: "${searchQuery}"`;
@@ -39,7 +52,7 @@ const Products = () => {
             <div className="container">
                 <div className="products-header">
                     <h1>{getPageTitle()}</h1>
-                    <p>{filteredProducts.length} items found</p>
+                    <p>{products.length} items found</p>
                 </div>
 
                 <div className="products-layout">
@@ -47,7 +60,7 @@ const Products = () => {
                         <h3>Categories</h3>
                         <ul>
                             <li><Link to="/products" className={!categoryFilter ? 'active' : ''}>All Products</Link></li>
-                            {categories.map(cat => (
+                            {CATEGORIES.map(cat => (
                                 <li key={cat}>
                                     <Link to={`/products?category=${cat}`} className={categoryFilter === cat ? 'active' : ''}>
                                         {cat}
@@ -58,10 +71,12 @@ const Products = () => {
                     </aside>
 
                     <main className="products-grid">
-                        {filteredProducts.length > 0 ? (
+                        {loading ? (
+                            <p style={{ padding: '2rem' }}>Loading products...</p>
+                        ) : products.length > 0 ? (
                             <div className="grid grid-cols-3">
-                                {filteredProducts.map(product => (
-                                    <ProductCard key={product.id} product={product} />
+                                {products.map(product => (
+                                    <ProductCard key={product._id} product={{ ...product, id: product._id }} />
                                 ))}
                             </div>
                         ) : (
