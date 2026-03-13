@@ -20,3 +20,21 @@ steps:
     npm run build
   displayName: 'npm install and build'
 
+- task: SonarQubePrepare@8
+  displayName: Sonar prepare Analysis
+  inputs:
+    SonarQube: 'devops-sonar'
+    scannerMode: 'cli'
+    cliScannerVersion: '8.0.1.6346'
+    configMode: 'file'
+
+- task: SonarQubeAnalyze@8
+  displayName: sonar Run code 
+  inputs:
+    jdkversion: 'JAVA_HOME_17_X64'
+  
+- task: SonarQubePublish@8
+  displayName: Quality Gate
+  inputs:
+    pollingTimeoutSec: '300'
+
