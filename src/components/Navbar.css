@@ -23,9 +23,38 @@
     justify-content: space-between;
     align-items: center;
     max-width: 1400px;
-    /* Allow wide layout */
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 1.5rem;
+}
+
+/* Brand Logo */
+.navbar-logo {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    line-height: 1;
+    margin-right: 1.5rem;
+}
+
+.logo-main {
+    background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: 2.5px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.logo-sub {
+    color: #FFFFFF;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    margin-top: 1px;
+    opacity: 0.9;
 }
 
 /* Links Section */
@@ -38,7 +67,7 @@
 .navbar-links a {
     color: var(--navbar-text);
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     text-decoration: none;
     letter-spacing: 0.5px;

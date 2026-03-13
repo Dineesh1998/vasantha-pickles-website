@@ -76,7 +76,7 @@ const Products = () => {
                         ) : products.length > 0 ? (
                             <div className="grid grid-cols-3">
                                 {products.map(product => (
-                                    <ProductCard key={product._id} product={{ ...product, id: product._id }} />
+                                    <ProductCard key={product.id} product={product} />
                                 ))}
                             </div>
                         ) : (

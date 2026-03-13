@@ -107,7 +107,7 @@ const OrderTracking = () => {
                     <div>
                         <h1>Track Order</h1>
                         <span className="tracking-order-id">
-                            #{order._id.slice(-10).toUpperCase()}
+                            #{order.id.slice(-10).toUpperCase()}
                         </span>
                     </div>
                     <span

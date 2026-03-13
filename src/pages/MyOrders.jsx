@@ -54,10 +54,10 @@ const MyOrders = () => {
                 <h1>My Orders</h1>
                 <div className="orders-list">
                     {orders.map(order => (
-                        <div key={order._id} className="order-card">
+                        <div key={order.id} className="order-card">
                             <div className="order-header">
                                 <div>
-                                    <span className="order-id">Order #{order._id.slice(-8).toUpperCase()}</span>
+                                    <span className="order-id">Order #{order.id.slice(-8).toUpperCase()}</span>
                                     <span className="order-date">
                                         {new Date(order.createdAt).toLocaleDateString()} at {new Date(order.createdAt).toLocaleTimeString()}
                                     </span>
@@ -76,7 +76,7 @@ const MyOrders = () => {
 
                             <div className="order-footer">
                                 <span className="order-total">Total: ₹{order.total}</span>
-                                <Link to={`/tracking/${order._id}`} className="btn btn-outline btn-sm">
+                                <Link to={`/tracking/${order.id}`} className="btn btn-outline btn-sm">
                                     Track Order <ChevronRight size={16} />
                                 </Link>
                             </div>

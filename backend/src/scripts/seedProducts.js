@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Product from '../models/Product.model.js';
+import { connectDB, sequelize } from '../config/db.js';
 
 dotenv.config();
 
@@ -27,13 +27,13 @@ const products = [
 
 const seedProducts = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI);
-        console.log('✅ Connected to MongoDB');
+        await connectDB();
+        console.log('✅ Connected to database');
 
-        await Product.deleteMany({});
+        await Product.destroy({ where: {}, truncate: true });
         console.log('🗑️  Cleared existing products');
 
-        await Product.insertMany(products);
+        await Product.bulkCreate(products);
         console.log(`✅ Seeded ${products.length} products`);
 
         process.exit(0);

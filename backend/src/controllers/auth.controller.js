@@ -18,7 +18,7 @@ export const register = async (req, res) => {
             return res.status(400).json({ success: false, message: 'All fields are required.' });
         }
 
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
             return res.status(409).json({ success: false, message: 'An account with this email already exists.' });
         }
@@ -28,15 +28,16 @@ export const register = async (req, res) => {
         res.status(201).json({
             success: true,
             message: 'Account created successfully.',
-            token: generateToken(user._id),
+            token: generateToken(user.id),
             user: {
-                id: user._id,
+                id: user.id,
                 name: user.name,
                 email: user.email,
                 role: user.role
             }
         });
     } catch (error) {
+        console.error('Registration Error:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -54,33 +55,34 @@ export const login = async (req, res) => {
 
         // Check for admin hardcoded login
         if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
-            let adminUser = await User.findOne({ email });
+            let adminUser = await User.findOne({ where: { email } });
             if (!adminUser) {
                 adminUser = await User.create({ name: 'Admin', email, password, role: 'admin' });
             }
             return res.json({
                 success: true,
-                token: generateToken(adminUser._id),
-                user: { id: adminUser._id, name: adminUser.name, email: adminUser.email, role: 'admin' }
+                token: generateToken(adminUser.id),
+                user: { id: adminUser.id, name: adminUser.name, email: adminUser.email, role: 'admin' }
             });
         }
 
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ where: { email } });
         if (!user || !(await user.matchPassword(password))) {
             return res.status(401).json({ success: false, message: 'Invalid email or password.' });
         }
 
         res.json({
             success: true,
-            token: generateToken(user._id),
+            token: generateToken(user.id),
             user: {
-                id: user._id,
+                id: user.id,
                 name: user.name,
                 email: user.email,
                 role: user.role
             }
         });
     } catch (error) {
+        console.error('Login Error:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -92,7 +94,7 @@ export const getMe = async (req, res) => {
     res.json({
         success: true,
         user: {
-            id: req.user._id,
+            id: req.user.id,
             name: req.user.name,
             email: req.user.email,
             role: req.user.role

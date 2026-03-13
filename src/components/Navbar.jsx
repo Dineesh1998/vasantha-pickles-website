@@ -7,7 +7,7 @@ import './Navbar.css';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const { cartCount } = useCart();
+    const { cartCount, cartTotal } = useCart();
     const { user, logout } = useAuth();
     const [showProfileMenu, setShowProfileMenu] = useState(false);
 
@@ -28,7 +28,13 @@ const Navbar = () => {
     return (
         <nav className="navbar">
             <div className="container navbar-container">
-                {/* Links Section - Left Aligned */}
+                {/* Brand Logo */}
+                <Link to="/" className="navbar-logo">
+                    <span className="logo-main">VASANTHA</span>
+                    <span className="logo-sub">Home Made Pickles</span>
+                </Link>
+
+                {/* Links Section - Center Aligned */}
                 <div className={`navbar-links desktop-links ${isOpen ? 'active' : ''}`}>
                     <Link to="/" onClick={() => setIsOpen(false)}>HOME</Link>
                     <Link to="/products" onClick={() => setIsOpen(false)}>SHOP ALL</Link>
@@ -121,11 +127,7 @@ const Navbar = () => {
                     <Link to="/cart" className="cart-container-boxed">
                         <ShoppingBag size={20} strokeWidth={2} />
                         <span className="cart-count-superscript">{cartCount}</span>
-                        <span className="cart-price">₹0.00</span>
-                        {/* Note: Price is hardcoded 0.00 in image, but ideally should come from context. 
-                            Using 0.00 for now as context might not provide total value readily available without calculating. 
-                            Actually CartContext usually has total. I'll check imports. 
-                        */}
+                        <span className="cart-price">₹{cartTotal.toFixed(2)}</span>
                     </Link>
 
                     {/* Track Button */}

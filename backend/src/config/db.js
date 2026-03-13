@@ -1,11 +1,21 @@
-import mongoose from 'mongoose';
+import { Sequelize } from 'sequelize';
+
+export const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: 'user.db',
+  logging: false, // Set to true to see SQL queries
+});
 
 export const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGO_URI);
-        console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+        await sequelize.authenticate();
+        console.log(`✅ SQLite Database Connected`);
+        
+        // Sync models
+        await sequelize.sync();
+        console.log(`✅ Database synced`);
     } catch (error) {
-        console.error(`❌ MongoDB Connection Error: ${error.message}`);
+        console.error(`❌ Database Connection Error: ${error.message}`);
         process.exit(1);
     }
 };

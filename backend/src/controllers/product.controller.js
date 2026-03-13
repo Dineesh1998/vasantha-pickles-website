@@ -1,4 +1,5 @@
 import Product from '../models/Product.model.js';
+import { Op } from 'sequelize';
 
 // @desc   Get all products (with optional category filter & search)
 // @route  GET /api/products
@@ -6,13 +7,13 @@ import Product from '../models/Product.model.js';
 export const getProducts = async (req, res) => {
     try {
         const { category, search, featured } = req.query;
-        const filter = {};
+        const where = {};
 
-        if (category && category !== 'All') filter.category = category;
-        if (featured === 'true') filter.featured = true;
-        if (search) filter.name = { $regex: search, $options: 'i' };
+        if (category && category !== 'All') where.category = category;
+        if (featured === 'true') where.featured = true;
+        if (search) where.name = { [Op.like]: `%${search}%` };
 
-        const products = await Product.find(filter).sort({ createdAt: -1 });
+        const products = await Product.findAll({ where, order: [['createdAt', 'DESC']] });
         res.json({ success: true, count: products.length, products });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -24,7 +25,7 @@ export const getProducts = async (req, res) => {
 // @access Public
 export const getProductById = async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id);
+        const product = await Product.findByPk(req.params.id);
         if (!product) {
             return res.status(404).json({ success: false, message: 'Product not found.' });
         }
@@ -51,13 +52,11 @@ export const createProduct = async (req, res) => {
 // @access Admin Only
 export const updateProduct = async (req, res) => {
     try {
-        const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true
-        });
+        const product = await Product.findByPk(req.params.id);
         if (!product) {
             return res.status(404).json({ success: false, message: 'Product not found.' });
         }
+        await product.update(req.body);
         res.json({ success: true, product });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
@@ -69,10 +68,11 @@ export const updateProduct = async (req, res) => {
 // @access Admin Only
 export const deleteProduct = async (req, res) => {
     try {
-        const product = await Product.findByIdAndDelete(req.params.id);
+        const product = await Product.findByPk(req.params.id);
         if (!product) {
             return res.status(404).json({ success: false, message: 'Product not found.' });
         }
+        await product.destroy();
         res.json({ success: true, message: 'Product deleted.' });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

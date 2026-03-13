@@ -1,4 +1,5 @@
 import Order from '../models/Order.model.js';
+import User from '../models/User.model.js';
 
 // @desc   Place a new order
 // @route  POST /api/orders
@@ -12,7 +13,7 @@ export const placeOrder = async (req, res) => {
         }
 
         const order = await Order.create({
-            userId: req.user._id,
+            userId: req.user.id,
             items,
             shippingDetails,
             paymentMethod,
@@ -33,7 +34,10 @@ export const placeOrder = async (req, res) => {
 // @access Private
 export const getMyOrders = async (req, res) => {
     try {
-        const orders = await Order.find({ userId: req.user._id }).sort({ createdAt: -1 });
+        const orders = await Order.findAll({ 
+            where: { userId: req.user.id },
+            order: [['createdAt', 'DESC']]
+        });
         res.json({ success: true, orders });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -45,11 +49,11 @@ export const getMyOrders = async (req, res) => {
 // @access Private
 export const getOrderById = async (req, res) => {
     try {
-        const order = await Order.findById(req.params.id);
+        const order = await Order.findByPk(req.params.id);
         if (!order) return res.status(404).json({ success: false, message: 'Order not found.' });
 
         // Ensure user can only access their own orders (unless admin)
-        if (order.userId.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+        if (order.userId !== req.user.id && req.user.role !== 'admin') {
             return res.status(403).json({ success: false, message: 'Not authorized.' });
         }
 
@@ -64,7 +68,10 @@ export const getOrderById = async (req, res) => {
 // @access Admin Only
 export const getAllOrders = async (req, res) => {
     try {
-        const orders = await Order.find({}).populate('userId', 'name email').sort({ createdAt: -1 });
+        const orders = await Order.findAll({ 
+            include: [{ model: User, as: 'user', attributes: ['name', 'email'] }],
+            order: [['createdAt', 'DESC']]
+        });
         res.json({ success: true, count: orders.length, orders });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -77,12 +84,12 @@ export const getAllOrders = async (req, res) => {
 export const updateOrderStatus = async (req, res) => {
     try {
         const { status } = req.body;
-        const order = await Order.findByIdAndUpdate(
-            req.params.id,
-            { status },
-            { new: true }
-        );
+        const order = await Order.findByPk(req.params.id);
+        
         if (!order) return res.status(404).json({ success: false, message: 'Order not found.' });
+        
+        await order.update({ status });
+        
         res.json({ success: true, order });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

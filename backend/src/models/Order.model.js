@@ -1,37 +1,22 @@
-import mongoose from 'mongoose';
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../config/db.js';
+import User from './User.model.js';
 
-const orderItemSchema = new mongoose.Schema({
-    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
-    name: { type: String, required: true },
-    image: { type: String },
-    size: { type: String, required: true },
-    price: { type: Number, required: true },
-    quantity: { type: Number, required: true, min: 1 }
-}, { _id: false });
+const Order = sequelize.define('Order', {
+    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+    userId: { type: DataTypes.UUID, allowNull: false, references: { model: User, key: 'id' } },
+    items: { type: DataTypes.JSON, allowNull: false },
+    shippingDetails: { type: DataTypes.JSON, allowNull: false },
+    paymentMethod: { type: DataTypes.ENUM('card', 'upi', 'cod', 'razorpay'), allowNull: false },
+    paymentStatus: { type: DataTypes.ENUM('pending', 'paid', 'failed'), defaultValue: 'pending' },
+    razorpayOrderId: { type: DataTypes.STRING },
+    razorpayPaymentId: { type: DataTypes.STRING },
+    subtotal: { type: DataTypes.FLOAT, allowNull: false },
+    shipping: { type: DataTypes.FLOAT, allowNull: false },
+    total: { type: DataTypes.FLOAT, allowNull: false },
+    status: { type: DataTypes.ENUM('Processing', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'), defaultValue: 'Processing' }
+});
 
-const shippingDetailsSchema = new mongoose.Schema({
-    firstName: String,
-    lastName: String,
-    email: String,
-    address: String,
-    city: String,
-    zipCode: String,
-    phone: String
-}, { _id: false });
+Order.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
-const orderSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    items: [orderItemSchema],
-    shippingDetails: shippingDetailsSchema,
-    paymentMethod: { type: String, enum: ['card', 'upi', 'cod', 'razorpay'], required: true },
-    paymentStatus: { type: String, enum: ['pending', 'paid', 'failed'], default: 'pending' },
-    razorpayOrderId: { type: String },
-    razorpayPaymentId: { type: String },
-    subtotal: { type: Number, required: true },
-    shipping: { type: Number, required: true },
-    total: { type: Number, required: true },
-    status: { type: String, enum: ['Processing', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'], default: 'Processing' }
-}, { timestamps: true });
-
-const Order = mongoose.model('Order', orderSchema);
 export default Order;

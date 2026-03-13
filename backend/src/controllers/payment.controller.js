@@ -56,7 +56,12 @@ export const verifyPayment = async (req, res) => {
         }
 
         // Update order in DB as paid
-        await Order.findByIdAndUpdate(orderId, {
+        const order = await Order.findByPk(orderId);
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found.' });
+        }
+
+        await order.update({
             paymentStatus: 'paid',
             razorpayOrderId: razorpay_order_id,
             razorpayPaymentId: razorpay_payment_id,

@@ -53,7 +53,7 @@ const Checkout = () => {
     };
 
     const handleAddressSelect = (addr) => {
-        setSelectedAddressId(addr._id);
+        setSelectedAddressId(addr.id);
         setFormData(prev => ({
             ...prev,
             address: addr.address,
@@ -81,6 +81,16 @@ const Checkout = () => {
 
     const { subtotal, shipping, total } = calculateTotal();
 
+    const loadRazorpay = () => {
+        return new Promise((resolve) => {
+            const script = document.createElement('script');
+            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+        });
+    };
+
     const handlePlaceOrder = async (e) => {
         e.preventDefault();
 
@@ -92,22 +102,10 @@ const Checkout = () => {
         setIsProcessing(true);
 
         try {
-            // Save address if checkbox is checked and no existing address selected
-            if (saveNewAddress && !selectedAddressId) {
-                await saveAddress({
-                    firstName: formData.firstName,
-                    lastName: formData.lastName,
-                    address: formData.address,
-                    city: formData.city,
-                    zipCode: formData.zipCode,
-                    phone: formData.phone
-                });
-            }
-
-            // Place order via backend API
+            // 1. Create order in our database first (status: pending)
             const orderPayload = {
                 items: cart.map(item => ({
-                    productId: item.id || item._id,
+                    productId: item.id,
                     name: item.name,
                     image: item.image,
                     size: item.size,
@@ -121,16 +119,73 @@ const Checkout = () => {
                 total
             };
 
-            const { data } = await orderAPI.place(orderPayload);
+            const { data: orderData } = await orderAPI.place(orderPayload);
+            const localOrderId = orderData.order.id;
 
-            setOrderId(data.order._id);
-            setOrderPlaced(true);
-            clearCart();
-            showToast('Order placed successfully! 🎉', 'success');
+            // 2. Handle Payment logic
+            if (paymentMethod === 'razorpay') {
+                const isLoaded = await loadRazorpay();
+                if (!isLoaded) {
+                    showToast('Razorpay SDK failed to load. Check your internet connection.', 'error');
+                    setIsProcessing(false);
+                    return;
+                }
 
-            setTimeout(() => {
-                navigate('/my-orders');
-            }, 3000);
+                // Create Razorpay Order on backend
+                const { data: rpOrderData } = await paymentAPI.createOrder(total);
+                const rpOrder = rpOrderData.order;
+
+                const options = {
+                    key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'your_razorpay_key_id', // Need real key for production
+                    amount: rpOrder.amount,
+                    currency: rpOrder.currency,
+                    name: "Vasantha Pickles",
+                    description: "Order Payment",
+                    order_id: rpOrder.id,
+                    handler: async (response) => {
+                        try {
+                            const verifyData = {
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                                orderId: localOrderId
+                            };
+
+                            const { data: verifyResponse } = await paymentAPI.verify(verifyData);
+
+                            if (verifyResponse.success) {
+                                setOrderId(localOrderId);
+                                setOrderPlaced(true);
+                                clearCart();
+                                showToast('Payment successful! Order confirmed. 🎉', 'success');
+                                setTimeout(() => navigate('/my-orders'), 3000);
+                            }
+                        } catch (err) {
+                            showToast('Payment verification failed. Please contact support.', 'error');
+                        }
+                    },
+                    prefill: {
+                        name: `${formData.firstName} ${formData.lastName}`,
+                        email: formData.email,
+                        contact: formData.phone
+                    },
+                    theme: { color: "#4d7c0f" },
+                };
+
+                const paymentObject = new window.Razorpay(options);
+                paymentObject.open();
+
+            } else {
+                // Cash on Delivery or UPI (Simulated)
+                setOrderId(localOrderId);
+                setOrderPlaced(true);
+                clearCart();
+                showToast('Order placed successfully! 🎉', 'success');
+                if (saveNewAddress && !selectedAddressId) {
+                    await saveAddress(formData);
+                }
+                setTimeout(() => navigate('/my-orders'), 3000);
+            }
 
         } catch (error) {
             const message = error.response?.data?.message || 'Failed to place order. Please try again.';
@@ -245,15 +300,15 @@ const Checkout = () => {
                                     <div className="saved-addresses">
                                         {savedAddresses.map(addr => (
                                             <div
-                                                key={addr._id}
-                                                className={`address-card ${selectedAddressId === addr._id ? 'selected' : ''}`}
+                                                key={addr.id}
+                                                className={`address-card ${selectedAddressId === addr.id ? 'selected' : ''}`}
                                                 onClick={() => handleAddressSelect(addr)}
                                             >
                                                 <p><strong>{addr.firstName} {addr.lastName}</strong></p>
                                                 <p>{addr.address}</p>
                                                 <p>{addr.city}, {addr.zipCode}</p>
                                                 <p>{addr.phone}</p>
-                                                {selectedAddressId === addr._id && <CheckCircle className="address-selected-icon" size={16} />}
+                                                {selectedAddressId === addr.id && <CheckCircle className="address-selected-icon" size={16} />}
                                             </div>
                                         ))}
                                         <div

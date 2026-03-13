@@ -50,7 +50,7 @@ const AdminDashboard = () => {
             const { data } = await orderAPI.updateStatus(orderId, newStatus);
             // Update local state immediately so UI reflects change instantly
             setOrders(prev =>
-                prev.map(o => o._id === orderId ? { ...o, status: data.order.status } : o)
+                prev.map(o => o.id === orderId ? { ...o, status: data.order.status } : o)
             );
             showToast(`Order status updated to "${newStatus}"`, 'success');
         } catch (error) {
@@ -66,7 +66,7 @@ const AdminDashboard = () => {
         const matchStatus = filterStatus === 'All' || order.status === filterStatus;
         const term = searchTerm.toLowerCase();
         const matchSearch =
-            order._id.toLowerCase().includes(term) ||
+            order.id.toLowerCase().includes(term) ||
             order.shippingDetails?.firstName?.toLowerCase().includes(term) ||
             order.shippingDetails?.lastName?.toLowerCase().includes(term) ||
             order.shippingDetails?.email?.toLowerCase().includes(term) ||
@@ -182,10 +182,10 @@ const AdminDashboard = () => {
                             <tbody>
                                 {filteredOrders.length > 0 ? (
                                     filteredOrders.map(order => (
-                                        <tr key={order._id}>
-                                            <td className="order-id">
-                                                #{order._id.slice(-8).toUpperCase()}
-                                            </td>
+                                    <tr key={order.id}>
+                                        <td className="order-id">
+                                            #{order.id.slice(-8).toUpperCase()}
+                                        </td>
                                             <td>
                                                 {new Date(order.createdAt).toLocaleDateString('en-IN')}
                                                 <br />
@@ -232,8 +232,8 @@ const AdminDashboard = () => {
                                                 <select
                                                     className="status-select-action"
                                                     value={order.status}
-                                                    disabled={updatingId === order._id}
-                                                    onChange={(e) => updateOrderStatus(order._id, e.target.value)}
+                                                    disabled={updatingId === order.id}
+                                                    onChange={(e) => updateOrderStatus(order.id, e.target.value)}
                                                 >
                                                     <option value="Processing">Processing</option>
                                                     <option value="Confirmed">Confirmed</option>
@@ -241,7 +241,7 @@ const AdminDashboard = () => {
                                                     <option value="Delivered">Delivered</option>
                                                     <option value="Cancelled">Cancelled</option>
                                                 </select>
-                                                {updatingId === order._id && (
+                                                {updatingId === order.id && (
                                                     <span style={{ fontSize: '0.7rem', color: '#888' }}> Saving...</span>
                                                 )}
                                             </td>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShoppingBag, Star, ArrowLeft } from 'lucide-react';
-import { products, QUANTITY_OPTIONS } from '../data/products';
+import { ShoppingBag, Star, ArrowLeft, Loader2 } from 'lucide-react';
+import { productAPI } from '../services/api';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import './ProductDetails.css';
@@ -13,25 +13,49 @@ const ProductDetails = () => {
     const { showToast } = useToast();
 
     const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [selectedOption, setSelectedOption] = useState(null);
 
     useEffect(() => {
-        // Find product by ID
-        const foundProduct = products.find(p => p.id === parseInt(id));
-        if (foundProduct) {
-            setProduct(foundProduct);
-            // Set initial option
-            const options = foundProduct.variants || QUANTITY_OPTIONS;
-            setSelectedOption(options[0]);
-        } else {
-            // Redirect if not found
-            navigate('/products');
+        const fetchProduct = async () => {
+            try {
+                setLoading(true);
+                const { data } = await productAPI.getById(id);
+                if (data.product) {
+                    setProduct(data.product);
+                    const options = data.product.variants || [];
+                    setSelectedOption(options[0]);
+                } else {
+                    navigate('/products');
+                }
+            } catch (error) {
+                console.error('Error fetching product:', error);
+                showToast('Failed to load product details.', 'error');
+                navigate('/products');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) {
+            fetchProduct();
         }
-    }, [id, navigate]);
+    }, [id, navigate, showToast]);
 
-    if (!product || !selectedOption) return <div className="loading">Loading...</div>;
+    if (loading) {
+        return (
+            <div className="section product-details-page">
+                <div className="container loading-container">
+                    <Loader2 size={40} className="spin-icon" />
+                    <p>Loading product details...</p>
+                </div>
+            </div>
+        );
+    }
 
-    const options = product.variants || QUANTITY_OPTIONS;
+    if (!product || !selectedOption) return null;
+
+    const options = product.variants || [];
 
     const handleSizeChange = (e) => {
         const option = options.find(opt => opt.value === e.target.value);
