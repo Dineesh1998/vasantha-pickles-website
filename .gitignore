@@ -12,30 +12,10 @@ dist
 dist-ssr
 *.local
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-# Terraform
+
 **/.terraform/*
 *.tfstate
-*.tfstate.*
-crash.log
-crash.*.log
-.terraform.lock.hcl
-
-# Variable files
+    *.tfstate.*
 *.tfvars
-*.tfvars.json
-
-# Override files
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
+*.tfvars.json                   
+    crash.log
