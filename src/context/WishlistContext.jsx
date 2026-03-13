@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { useToast } from './ToastContext';
 
 const WishlistContext = createContext();
@@ -43,15 +43,17 @@ export const WishlistProvider = ({ children }) => {
         }
     };
 
+    const contextValue = useMemo(() => ({
+        wishlist,
+        addToWishlist,
+        removeFromWishlist,
+        isInWishlist,
+        toggleWishlist,
+        wishlistCount: wishlist.length
+    }), [wishlist, addToWishlist, removeFromWishlist, isInWishlist, toggleWishlist]);
+
     return (
-        <WishlistContext.Provider value={{
-            wishlist,
-            addToWishlist,
-            removeFromWishlist,
-            isInWishlist,
-            toggleWishlist,
-            wishlistCount: wishlist.length
-        }}>
+        <WishlistContext.Provider value={contextValue}>
             {children}
         </WishlistContext.Provider>
     );

@@ -41,7 +41,8 @@
 
 /* Categories */
 .categories-section {
-    background-color: var(--color-background);
+    background-color: #F8E8D4;
+    padding: 3rem 0;
 }
 
 .section-header {
@@ -183,12 +184,7 @@
     }
 }
 
-/* Categories Section Redesign */
-.categories-section {
-    background-color: #F8E8D4;
-    /* Light Cream/Beige background from reference */
-    padding: 3rem 0;
-}
+/* background-color and padding merged into main .categories-section rule above */
 
 .section-header-centered {
     text-align: center;

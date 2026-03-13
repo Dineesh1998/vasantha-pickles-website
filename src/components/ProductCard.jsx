@@ -71,8 +71,8 @@ const ProductCard = ({ product }) => {
                         onChange={handleSizeChange}
                         className="size-select"
                     >
-                        {options.map((opt, index) => (
-                            <option key={`${opt.value}-${index}`} value={opt.value}>
+                        {options.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
                                 {opt.label}
                             </option>
                         ))}

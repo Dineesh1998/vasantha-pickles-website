@@ -388,7 +388,21 @@ export const products = [
             { label: '500g', value: '500g', price: 374 },
             { label: '1kg', value: '1kg', price: 748 },
         ]
-    }
+    },
+    {
+        id: 30,
+        name: "kakarakaya vepudu",
+        category: "Veg Pickles",
+        basePrice: 187,
+        image: "/images/kakarakaya vepudu.jpg",
+        description: "A traditional pickle made with coriander and spices.",
+        featured: true,
+        variants: [
+            { label: '250g', value: '250g', price: 187 },
+            { label: '500g', value: '500g', price: 374 },
+            { label: '1kg', value: '1kg', price: 748 },
+        ]
+    },
 
 ];
 

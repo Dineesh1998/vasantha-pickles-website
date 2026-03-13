@@ -8,7 +8,7 @@ const Hero = () => {
         <div className="hero">
             <div className="hero-overlay"></div>
             <div className="hero-content container">
-                <span className="hero-subtitle">Authentic & Homemade</span>
+                <span className="hero-subtitle">Vasantha Home Made Pickles</span>
                 <h1 className="hero-title">Experience the<br />Real Taste of Tradition</h1>
                 <p className="hero-description">
                     Handcrafted pickles, powders, and sweets made with grandma's secret recipes.

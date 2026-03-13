@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 
 const ToastContext = createContext();
 
@@ -14,8 +14,10 @@ export const ToastProvider = ({ children }) => {
         }, 3000); // Auto hide after 3 seconds
     }, []);
 
+    const contextValue = useMemo(() => ({ toast, showToast }), [toast, showToast]);
+
     return (
-        <ToastContext.Provider value={{ toast, showToast }}>
+        <ToastContext.Provider value={contextValue}>
             {children}
         </ToastContext.Provider>
     );
