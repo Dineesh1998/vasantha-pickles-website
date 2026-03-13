@@ -4,7 +4,7 @@ import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { CreditCard, Truck, Banknote, ArrowLeft, CheckCircle, Plus, MapPin } from 'lucide-react';
-import { orderAPI, addressAPI } from '../services/api';
+import { orderAPI, paymentAPI } from '../services/api';
 import './Checkout.css';
 import './Auth.css';
 
@@ -160,7 +160,7 @@ const Checkout = () => {
                                 showToast('Payment successful! Order confirmed. 🎉', 'success');
                                 setTimeout(() => navigate('/my-orders'), 3000);
                             }
-                        } catch (err) {
+                        } catch (_err) {
                             showToast('Payment verification failed. Please contact support.', 'error');
                         }
                     },
